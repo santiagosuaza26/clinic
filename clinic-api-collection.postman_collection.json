@@ -27,6 +27,16 @@
       "type": "string"
     },
     {
+      "key": "username",
+      "value": "admin",
+      "type": "string"
+    },
+    {
+      "key": "password",
+      "value": "Admin123!@#",
+      "type": "string"
+    },
+    {
       "key": "patient_cedula",
       "value": "12345678",
       "type": "string"
@@ -61,6 +71,19 @@
     {
       "name": "🏠 Información Pública",
       "item": [
+        {
+          "name": "Root",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": ["{{baseUrl}}"],
+              "path": [""]
+            },
+            "description": "Endpoint raíz de la aplicación"
+          }
+        },
         {
           "name": "Health Check",
           "request": {
@@ -102,6 +125,151 @@
         }
       ],
       "description": "Endpoints públicos que no requieren autenticación"
+    },
+    {
+      "name": "🔐 Autenticación",
+      "item": [
+        {
+          "name": "Iniciar Sesión",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Iniciar sesión en el sistema y obtener token JWT",
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "type": "text/javascript",
+                  "exec": [
+                    "// Extraer token JWT de la respuesta",
+                    "if (pm.response.code === 200) {",
+                    "    const response = pm.response.json();",
+                    "    if (response.success && response.token) {",
+                    "        pm.environment.set('jwt_token', response.token);",
+                    "        console.log('Token JWT guardado:', response.token);",
+                    "        pm.test('Login exitoso y token guardado', function () {",
+                    "            pm.expect(response.success).to.be.true;",
+                    "            pm.expect(response.token).to.not.be.empty;",
+                    "        });",
+                    "    } else {",
+                    "        console.log('Error en login:', response.message);",
+                    "        pm.test('Login fallido', function () {",
+                    "            pm.expect(response.success).to.be.false;",
+                    "        });",
+                    "    }",
+                    "} else {",
+                    "    console.log('Error HTTP:', pm.response.code, pm.response.text());",
+                    "}"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "Cerrar Sesión",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "logout"]
+            },
+            "description": "Cerrar sesión del usuario actual",
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "type": "text/javascript",
+                  "exec": [
+                    "// Limpiar token después del logout",
+                    "if (pm.response.code === 200) {",
+                    "    pm.environment.set('jwt_token', '');",
+                    "    console.log('Token limpiado después del logout');",
+                    "}"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "Verificar Token",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/verify",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "verify"]
+            },
+            "description": "Verificar validez del token JWT actual"
+          }
+        },
+        {
+          "name": "Refrescar Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "refresh"]
+            },
+            "description": "Refrescar token JWT antes de que expire"
+          }
+        }
+      ],
+      "description": "Gestión de autenticación y sesiones de usuario",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Script específico para endpoints de autenticación",
+              "// No requieren token para login, pero sí para otras operaciones",
+              "if (pm.request.url.getPath().includes('/auth/login')) {",
+              "    console.log('Ejecutando login - no se requiere token');",
+              "} else if (pm.request.url.getPath().includes('/auth/')) {",
+              "    if (!pm.environment.get('jwt_token')) {",
+              "        console.log('Operación requiere autenticación. Ejecute login primero.');",
+              "    }",
+              "}"
+            ]
+          }
+        }
+      ]
     },
     {
       "name": "👥 Gestión de Usuarios",
@@ -213,6 +381,110 @@
               "path": ["users", "role", "DOCTOR"]
             },
             "description": "Obtener usuarios filtrados por rol específico"
+          }
+        },
+        {
+          "name": "Obtener Usuario por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/id/{{user_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "id", "{{user_id}}"]
+            },
+            "description": "Obtener información de un usuario por su ID"
+          }
+        },
+        {
+          "name": "Listar Usuarios Activos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/active",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "active"]
+            },
+            "description": "Obtener lista de usuarios activos"
+          }
+        },
+        {
+          "name": "Eliminar Usuario por ID",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/id/{{user_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "id", "{{user_id}}"]
+            },
+            "description": "Eliminar un usuario del sistema por su ID"
+          }
+        },
+        {
+          "name": "Activar Usuario",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{doctor_cedula}}/activate",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{doctor_cedula}}", "activate"]
+            },
+            "description": "Activar un usuario en el sistema"
+          }
+        },
+        {
+          "name": "Desactivar Usuario",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{doctor_cedula}}/deactivate",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{doctor_cedula}}", "deactivate"]
+            },
+            "description": "Desactivar un usuario en el sistema"
+          }
+        },
+        {
+          "name": "Verificar Permisos - Ver Pacientes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{doctor_cedula}}/can-view-patients",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{doctor_cedula}}", "can-view-patients"]
+            },
+            "description": "Verificar si el usuario puede ver pacientes"
+          }
+        },
+        {
+          "name": "Verificar Permisos - Gestionar Usuarios",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{doctor_cedula}}/can-manage-users",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{doctor_cedula}}", "can-manage-users"]
+            },
+            "description": "Verificar si el usuario puede gestionar usuarios"
+          }
+        },
+        {
+          "name": "Verificar Permisos - Registrar Pacientes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{doctor_cedula}}/can-register-patients",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{doctor_cedula}}", "can-register-patients"]
+            },
+            "description": "Verificar si el usuario puede registrar pacientes"
           }
         }
       ],
@@ -328,6 +600,45 @@
               "path": ["patients", "{{patient_cedula}}", "age"]
             },
             "description": "Calcular y obtener la edad actual del paciente"
+          }
+        },
+        {
+          "name": "Obtener Paciente por Username",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/patients/username/paciente1",
+              "host": ["{{baseUrl}}"],
+              "path": ["patients", "username", "paciente1"]
+            },
+            "description": "Obtener información de un paciente por su nombre de usuario"
+          }
+        },
+        {
+          "name": "Obtener Paciente por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/patients/id/{{patient_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["patients", "id", "{{patient_id}}"]
+            },
+            "description": "Obtener información completa de un paciente por su ID"
+          }
+        },
+        {
+          "name": "Eliminar Paciente por ID",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/patients/id/{{patient_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["patients", "id", "{{patient_id}}"]
+            },
+            "description": "Eliminar un paciente del sistema por su ID"
           }
         }
       ],
@@ -598,6 +909,67 @@
             },
             "description": "Marcar una visita como completada"
           }
+        },
+        {
+          "name": "Actualizar Visita",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"symptoms\": \"Dolor de cabeza intenso\",\n  \"diagnosis\": \"Migraña con aura\",\n  \"observations\": \"Paciente requiere seguimiento\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/patient-visits/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["patient-visits", "1"]
+            },
+            "description": "Actualizar información de una visita existente"
+          }
+        },
+        {
+          "name": "Obtener Visitas por Rango de Fechas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/patient-visits/daterange/01/01/2024/31/12/2024",
+              "host": ["{{baseUrl}}"],
+              "path": ["patient-visits", "daterange", "01/01/2024", "31/12/2024"]
+            },
+            "description": "Obtener visitas en un rango de fechas específico"
+          }
+        },
+        {
+          "name": "Estadísticas de Visitas del Paciente",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/patient-visits/patient/{{patient_cedula}}/statistics",
+              "host": ["{{baseUrl}}"],
+              "path": ["patient-visits", "patient", "{{patient_cedula}}", "statistics"]
+            },
+            "description": "Obtener estadísticas de visitas de un paciente"
+          }
+        },
+        {
+          "name": "Visitas Pendientes del Paciente",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/patient-visits/patient/{{patient_cedula}}/pending",
+              "host": ["{{baseUrl}}"],
+              "path": ["patient-visits", "patient", "{{patient_cedula}}", "pending"]
+            },
+            "description": "Obtener visitas pendientes de un paciente"
+          }
         }
       ],
       "description": "Gestión de visitas médicas y signos vitales"
@@ -687,6 +1059,93 @@
             },
             "description": "Validar reglas de negocio antes de crear una orden"
           }
+        },
+        {
+          "name": "Obtener Órdenes por Doctor",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/orders/doctor/{{doctor_cedula}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "doctor", "{{doctor_cedula}}"]
+            },
+            "description": "Obtener todas las órdenes de un doctor específico"
+          }
+        },
+        {
+          "name": "Obtener Órdenes por Rango de Fechas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/orders/daterange/01/01/2024/31/12/2024",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "daterange", "01/01/2024", "31/12/2024"]
+            },
+            "description": "Obtener órdenes en un rango de fechas específico"
+          }
+        },
+        {
+          "name": "Actualizar Orden",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"CANCELLED\",\n  \"observations\": \"Orden cancelada por el médico\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders/{{order_number}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "{{order_number}}"]
+            },
+            "description": "Actualizar información de una orden existente"
+          }
+        },
+        {
+          "name": "Eliminar Orden",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/orders/{{order_number}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "{{order_number}}"]
+            },
+            "description": "Eliminar una orden del sistema"
+          }
+        },
+        {
+          "name": "Verificar Disponibilidad de Número de Orden",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/orders/number/{{order_number}}/available",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "number", "{{order_number}}", "available"]
+            },
+            "description": "Verificar si un número de orden está disponible"
+          }
+        },
+        {
+          "name": "Estadísticas de Órdenes del Paciente",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/orders/patient/{{patient_cedula}}/statistics",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "patient", "{{patient_cedula}}", "statistics"]
+            },
+            "description": "Obtener estadísticas de órdenes de un paciente"
+          }
         }
       ],
       "description": "Gestión de órdenes médicas y prescripciones"
@@ -753,6 +1212,19 @@
               "path": ["medical-records", "patient", "{{patient_cedula}}", "exists"]
             },
             "description": "Verificar si existe registro médico para un paciente"
+          }
+        },
+        {
+          "name": "Contar Registros del Paciente",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/medical-records/patient/{{patient_cedula}}/count",
+              "host": ["{{baseUrl}}"],
+              "path": ["medical-records", "patient", "{{patient_cedula}}", "count"]
+            },
+            "description": "Contar el número total de registros médicos de un paciente"
           }
         }
       ],
@@ -882,6 +1354,58 @@
             },
             "description": "Verificar si un item está disponible"
           }
+        },
+        {
+          "name": "Eliminar Item de Inventario",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/inventory/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["inventory", "1"]
+            },
+            "description": "Eliminar un item del inventario"
+          }
+        },
+        {
+          "name": "Verificar Existencia de Item",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/inventory/1/exists",
+              "host": ["{{baseUrl}}"],
+              "path": ["inventory", "1", "exists"]
+            },
+            "description": "Verificar si existe un item en el inventario"
+          }
+        },
+        {
+          "name": "Obtener Ayudas Diagnósticas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/inventory/type/diagnostic-aids",
+              "host": ["{{baseUrl}}"],
+              "path": ["inventory", "type", "diagnostic-aids"]
+            },
+            "description": "Obtener todas las ayudas diagnósticas disponibles"
+          }
+        },
+        {
+          "name": "Estadísticas de Inventario",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/inventory/statistics",
+              "host": ["{{baseUrl}}"],
+              "path": ["inventory", "statistics"]
+            },
+            "description": "Obtener estadísticas generales del inventario"
+          }
         }
       ],
       "description": "Gestión completa del inventario médico"
@@ -1005,17 +1529,25 @@
         "exec": [
           "// Script de pre-request para configurar autenticación",
           "// Se ejecuta antes de cada request",
-          "if (pm.request.url.getPath().includes('/users') || ",
-          "    pm.request.url.getPath().includes('/patients') ||",
-          "    pm.request.url.getPath().includes('/appointments') ||",
-          "    pm.request.url.getPath().includes('/patient-visits') ||",
-          "    pm.request.url.getPath().includes('/orders') ||",
-          "    pm.request.url.getPath().includes('/medical-records') ||",
-          "    pm.request.url.getPath().includes('/inventory') ||",
-          "    pm.request.url.getPath().includes('/billing')) {",
-          "    ",
+          "",
+          "// Lista de módulos que requieren autenticación",
+          "const protectedModules = [",
+          "    '/users', '/patients', '/appointments', '/patient-visits',",
+          "    '/orders', '/medical-records', '/inventory', '/billing'",
+          "];",
+          "",
+          "const requiresAuth = protectedModules.some(module => ",
+          "    pm.request.url.getPath().includes(module)",
+          ");",
+          "",
+          "if (requiresAuth) {",
           "    if (!pm.environment.get('jwt_token')) {",
-          "        console.log('JWT token no encontrado. Por favor inicia sesión primero.');",
+          "        console.log('JWT token no encontrado. Por favor inicia sesión primero ejecutando el request \"Iniciar Sesión\".');",
+          "        pm.test('Requiere autenticación', function () {",
+          "            pm.expect(pm.environment.get('jwt_token')).to.not.be.empty;",
+          "        });",
+          "    } else {",
+          "        console.log('Usando token JWT:', pm.environment.get('jwt_token').substring(0, 20) + '...');",
           "    }",
           "}",
           ""
@@ -1040,11 +1572,44 @@
           "    pm.expect(pm.response.responseTime).to.be.below(5000);",
           "});",
           "",
-          "// Para endpoints públicos, verificar que no requieren autenticación",
+          "// Validaciones específicas por módulo",
+          "",
+          "// Para endpoints públicos",
           "if (pm.request.url.getPath().includes('/public/')) {",
           "    pm.test('Public endpoint should not require authentication', function () {",
           "        pm.response.to.not.have.status(401);",
           "        pm.response.to.not.have.status(403);",
+          "    });",
+          "}",
+          "",
+          "// Para endpoints de autenticación",
+          "if (pm.request.url.getPath().includes('/auth/login')) {",
+          "    pm.test('Login response should have proper structure', function () {",
+          "        const response = pm.response.json();",
+          "        pm.expect(response).to.have.property('success');",
+          "        pm.expect(response).to.have.property('message');",
+          "        ",
+          "        if (response.success) {",
+          "            pm.expect(response).to.have.property('token');",
+          "            pm.expect(response).to.have.property('user');",
+          "            pm.expect(response.token).to.be.a('string').and.not.be.empty;",
+          "        }",
+          "    });",
+          "}",
+          "",
+          "// Para endpoints protegidos",
+          "const protectedModules = ['/users', '/patients', '/appointments', '/patient-visits', '/orders', '/medical-records', '/inventory', '/billing'];",
+          "const isProtected = protectedModules.some(module => pm.request.url.getPath().includes(module));",
+          "",
+          "if (isProtected) {",
+          "    pm.test('Protected endpoint should require valid authentication', function () {",
+          "        // Si no hay token, debe devolver 401",
+          "        if (!pm.environment.get('jwt_token')) {",
+          "            pm.response.to.have.status(401);",
+          "        } else {",
+          "            // Si hay token, no debe devolver 401",
+          "            pm.response.to.not.have.status(401);",
+          "        }",
           "    });",
           "}"
         ]

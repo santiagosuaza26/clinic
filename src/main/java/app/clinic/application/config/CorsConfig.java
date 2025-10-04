@@ -27,6 +27,7 @@ public class CorsConfig {
         configuration.setAllowedOriginPatterns(Arrays.asList(
             "http://localhost:3000",    // React development server
             "http://localhost:4200",    // Angular development server
+            "http://localhost:8000",    // Frontend development server (Python HTTP server)
             "http://localhost:8080",    // Alternative development server
             "https://your-frontend-domain.com" // Production frontend
         ));

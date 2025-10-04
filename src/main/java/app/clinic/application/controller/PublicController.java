@@ -18,6 +18,22 @@ import org.springframework.web.bind.annotation.RestController;
 public class PublicController {
 
     /**
+     * Root endpoint - redirects to API information or provides basic API info.
+     */
+    @GetMapping("/")
+    public ResponseEntity<Map<String, Object>> root() {
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Clinic Management System API");
+        response.put("version", "1.0.0");
+        response.put("status", "running");
+        response.put("documentation", "/swagger-ui.html");
+        response.put("health", "/api/public/health");
+        response.put("api-info", "/api/public/info");
+
+        return ResponseEntity.ok(response);
+    }
+
+    /**
      * Health check endpoint to verify API is running.
      */
     @GetMapping("/health")

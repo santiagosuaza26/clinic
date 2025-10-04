@@ -1,261 +1,149 @@
-# 📋 Colección de Postman - Sistema de Gestión Clínica
+# 📋 Guía de Uso - Colección de Postman
 
-## 📖 Descripción General
-
-Esta colección de Postman proporciona acceso completo a todos los endpoints de la API REST del Sistema de Gestión Clínica. Está organizada por módulos funcionales para facilitar su uso y mantenimiento.
-
-## 🚀 Configuración Inicial
+## 🚀 Inicio Rápido
 
 ### 1. Importar la Colección
-
-1. Abre Postman
-2. Haz clic en "Import" en la esquina superior izquierda
-3. Selecciona "Upload Files"
-4. Busca y selecciona el archivo `clinic-api-collection.postman_collection.json`
+1. Abre **Postman**
+2. Haz clic en **Import**
+3. Selecciona **File**
+4. Busca y selecciona `clinic-api-collection.postman_collection.json`
 5. La colección aparecerá en tu workspace
 
 ### 2. Configurar Variables de Entorno
+La colección usa las siguientes variables:
 
-Crea un nuevo entorno en Postman llamado "Desarrollo Clínica" con las siguientes variables:
+| Variable | Valor por Defecto | Descripción |
+|----------|------------------|-------------|
+| `baseUrl` | `http://localhost:8080` | URL base del backend |
+| `jwt_token` | *(vacío)* | Token JWT después del login |
+| `username` | `admin` | Usuario para login |
+| `password` | `Admin123!@#` | Contraseña para login |
 
-| Variable | Valor Inicial | Descripción |
-|----------|---------------|-------------|
-| `baseUrl` | `http://localhost:8080` | URL base de la aplicación |
-| `jwt_token` | *(vacío)* | Token JWT para autenticación |
-| `patient_cedula` | `12345678` | Cédula de ejemplo para pruebas |
-| `doctor_cedula` | `87654321` | Cédula de doctor para pruebas |
-| `appointment_id` | `1` | ID de cita para pruebas |
-| `order_number` | `ORD001` | Número de orden para pruebas |
-| `patient_id` | `1` | ID de paciente para pruebas |
-| `user_id` | `1` | ID de usuario para pruebas |
+### 3. Iniciar Servicios
+Asegúrate de que ambos servicios estén corriendo:
 
-## 🔐 Autenticación
-
-La aplicación utiliza autenticación JWT. Para obtener un token:
-
-1. **Crear Usuario Doctor (opcional)**: Usa el endpoint "Crear Usuario" con rol `DOCTOR`
-2. **Iniciar Sesión**: Actualmente la aplicación no tiene endpoint de login implementado, pero el token se puede obtener del response de creación de usuario o usar un token de prueba
-
-### Token de Prueba
-```
-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkRyLiBUZXN0IiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
-```
-
-## 📂 Estructura de la Colección
-
-### 🏠 Información Pública
-- **Health Check**: Verificar estado de la aplicación
-- **Welcome Message**: Mensaje de bienvenida
-- **Application Info**: Información de la aplicación
-
-### 👥 Gestión de Usuarios
-- Crear, actualizar, eliminar usuarios
-- Obtener usuarios por cédula, username o rol
-- Gestión de permisos y roles
-
-### 🏥 Gestión de Pacientes
-- Crear pacientes con información completa
-- Gestionar contactos de emergencia
-- Manejar pólizas de seguro
-- Consultar información del paciente
-
-### 📅 Gestión de Citas
-- Crear y gestionar citas médicas
-- Verificar disponibilidad de doctores
-- Cancelar o completar citas
-- Estadísticas de citas por paciente
-
-### 🏥 Gestión de Visitas
-- Crear visitas médicas
-- Registrar signos vitales
-- Completar visitas
-- Validar parámetros médicos
-
-### 📋 Gestión de Órdenes Médicas
-- Crear órdenes de medicamentos, procedimientos y ayudas diagnósticas
-- Validar órdenes antes de crear
-- Seguimiento de órdenes por paciente
-
-### 📋 Gestión de Registros Médicos
-- Crear y consultar historial médico
-- Organización por fecha y paciente
-- Gestión de datos médicos sensibles
-
-### 💊 Gestión de Inventario
-- Control de medicamentos y suministros
-- Gestión de costos y disponibilidad
-- Búsqueda y filtrado de items
-
-### 💰 Gestión de Facturación
-- Cálculo automático de facturas
-- Validación de seguros médicos
-- Control de límites de copago
-- Estadísticas de facturación
-
-## 🧪 Flujo de Pruebas Recomendado
-
-### 1. Verificación Inicial
 ```bash
-# 1. Verificar que la aplicación esté corriendo
-GET {{baseUrl}}/public/health
+# Terminal 1 - Backend
+cd clinic
+mvn spring-boot:run
 
-# 2. Obtener información de la aplicación
-GET {{baseUrl}}/public/info
+# Terminal 2 - Frontend (opcional para pruebas API)
+cd frontend
+python -m http.server 8000
 ```
 
-### 2. Crear Datos de Prueba
-```bash
-# 1. Crear un doctor
-POST {{baseUrl}}/users
-{
-  "cedula": "87654321",
-  "username": "doctor1",
-  "password": "Password123@",
-  "fullName": "Dr. Juan Pérez",
-  "birthDate": "15/03/1980",
-  "address": "Calle 123 #45-67",
-  "phoneNumber": "3001234567",
-  "email": "doctor@clinic.com",
-  "role": "DOCTOR"
-}
+## 🔐 Flujo de Autenticación
 
-# 2. Crear un paciente
-POST {{baseUrl}}/patients
-{
-  "cedula": "12345678",
-  "username": "paciente1",
-  "password": "Password123@",
-  "fullName": "María González",
-  "birthDate": "25/08/1990",
-  "gender": "FEMENINO",
-  "address": "Carrera 50 #25-30",
-  "phoneNumber": "3109876543",
-  "email": "maria@email.com",
-  "emergencyContact": {
-    "name": "Carlos González",
-    "phoneNumber": "3114567890",
-    "relationship": "HERMANO"
-  },
-  "insurancePolicy": {
-    "policyNumber": "POL001",
-    "companyName": "Seguros ABC",
-    "expirationDate": "31/12/2024",
-    "validityDays": 365,
-    "status": "ACTIVE"
-  }
-}
-```
+### Paso 1: Verificar Estado del Servidor
+1. Ejecuta **"Health Check"** en la carpeta **"🏠 Información Pública"**
+2. Deberías recibir una respuesta con `status: "UP"`
 
-### 3. Crear una Cita
-```bash
-# Crear cita médica
-POST {{baseUrl}}/appointments
-{
-  "patientCedula": "12345678",
-  "doctorCedula": "87654321",
-  "appointmentDateTime": "15/01/2024 10:30",
-  "consultationReason": "Consulta general",
-  "requiresSpecialistAssistance": false
-}
-```
+### Paso 2: Iniciar Sesión
+1. Ve a la carpeta **"🔐 Autenticación"**
+2. Ejecuta **"Iniciar Sesión"**
+3. El script automáticamente guardará el token JWT en la variable `jwt_token`
 
-### 4. Crear Visita y Registrar Signos Vitales
-```bash
-# Crear visita
-POST {{baseUrl}}/patient-visits
-{
-  "patientCedula": "12345678",
-  "doctorCedula": "87654321",
-  "appointmentId": 1,
-  "symptoms": "Dolor de cabeza y fiebre",
-  "diagnosis": "Gripe común",
-  "observations": "Paciente presenta síntomas típicos de gripe"
-}
+**Credenciales de Prueba:**
+- **Usuario:** `admin` | **Contraseña:** `Admin123!@#`
+- **Usuario:** `doctor` | **Contraseña:** `Doctor123!@#`
 
-# Registrar signos vitales
-PUT {{baseUrl}}/patient-visits/1/vital-signs
-{
-  "temperature": 37.2,
-  "pulse": 75,
-  "bloodPressure": "120/80",
-  "oxygenLevel": 98,
-  "nurseRecord": {
-    "nurseCedula": "87654321",
-    "observations": "Paciente estable"
-  }
-}
-```
+### Paso 3: Usar Endpoints Protegidos
+Una vez autenticado, puedes usar cualquier endpoint de:
+- 👥 Gestión de Usuarios
+- 🏥 Gestión de Pacientes
+- 📅 Gestión de Citas
+- 🏥 Gestión de Visitas
+- 📋 Gestión de Órdenes Médicas
+- 📋 Gestión de Registros Médicos
+- 💊 Gestión de Inventario
+- 💰 Gestión de Facturación
 
-## 🔧 Características Avanzadas
+## 🛠️ Características Avanzadas
 
-### Variables Dinámicas
-- Usa las variables predefinidas para mantener consistencia
-- Actualiza los valores según tus necesidades de prueba
-- Las variables se pueden cambiar globalmente desde el entorno
+### Scripts Automáticos
+La colección incluye scripts que:
 
-### Scripts de Pre-request y Tests
-- **Pre-request Scripts**: Configuran automáticamente headers y autenticación
-- **Tests**: Validan respuestas y tiempos de respuesta
-- **Status Code Validation**: Verifica que no haya errores 500
+- **Pre-request Scripts:** Verifican autenticación antes de cada request
+- **Test Scripts:** Validan respuestas y guardan datos automáticamente
+- **Event Listeners:** Manejan tokens y errores
 
-### Organización por Carpetas
-Cada módulo funcional está organizado en carpetas con:
-- Endpoints CRUD completos
-- Ejemplos de datos de prueba
-- Descripciones detalladas de cada operación
+### Validaciones Automáticas
+Cada request incluye pruebas que verifican:
+- ✅ Código de estado HTTP correcto
+- ✅ Tiempo de respuesta < 5 segundos
+- ✅ Estructura de respuesta válida
+- ✅ Autenticación requerida donde corresponde
 
-## 🚨 Notas Importantes
+## 🔧 Solución de Problemas
 
-### Seguridad
-- Los endpoints protegidos requieren autenticación JWT
-- Los endpoints públicos no necesitan token
-- Mantén seguros tus tokens de prueba
+### Error 401 (No autorizado)
+1. Ejecuta **"Iniciar Sesión"** primero
+2. Verifica que el token se haya guardado correctamente
+3. El token podría haber expirado (usa login nuevamente)
 
-### Validaciones
-- La aplicación tiene validaciones estrictas en los DTOs
-- Revisa los mensajes de error para ajustes necesarios
-- Los formatos de fecha deben ser `DD/MM/YYYY`
+### Error 500 (Error interno)
+1. Verifica que el backend esté corriendo en el puerto 8080
+2. Revisa los logs del backend para errores específicos
+3. Asegúrate de que la base de datos esté inicializada
 
-### Configuración Regional
-- Zona horaria configurada para `America/Bogota`
-- Formatos de fecha en español (DD/MM/YYYY)
-- Moneda en pesos colombianos (COP)
+### Error de CORS
+1. Verifica que el backend tenga CORS configurado para `localhost:8000`
+2. Asegúrate de que ambos servicios estén corriendo
 
-## 🆘 Solución de Problemas
+## 📊 Ejemplos de Uso
 
-### Error 401 (Unauthorized)
-- Verifica que el `jwt_token` esté configurado correctamente
-- Algunos endpoints pueden requerir roles específicos
+### Crear un Paciente
+1. Inicia sesión como administrador
+2. Ve a **"🏥 Gestión de Pacientes"**
+3. Ejecuta **"Crear Paciente"**
+4. Usa el ejemplo de JSON proporcionado
 
-### Error 404 (Not Found)
-- Verifica que la aplicación esté corriendo en el puerto correcto
-- Confirma que la URL base sea `http://localhost:8080`
+### Crear una Cita
+1. Asegúrate de tener pacientes y doctores creados
+2. Ve a **"📅 Gestión de Citas"**
+3. Ejecuta **"Crear Cita"**
+4. El sistema validará automáticamente la disponibilidad
 
-### Error 500 (Internal Server Error)
-- Revisa los logs de la aplicación
-- Verifica que la base de datos H2 esté inicializada correctamente
+### Consultar Inventario
+1. Inicia sesión (cualquier rol)
+2. Ve a **"💊 Gestión de Inventario"**
+3. Ejecuta **"Listar Todo el Inventario"**
 
-### Datos de Prueba
-Si necesitas limpiar datos entre pruebas:
-1. Reinicia la aplicación (detiene e inicia el proceso)
-2. La base de datos H2 se recrea automáticamente
+## 🎯 Consejos para Pruebas
 
-## 📊 Monitoreo y Logs
+1. **Siempre inicia con "Health Check"** para verificar conectividad
+2. **Usa "Iniciar Sesión"** antes de endpoints protegidos
+3. **Revisa la consola de Postman** para mensajes de debug
+4. **Los scripts automáticos** te guiarán si algo falta
 
-La aplicación incluye:
-- Logs detallados en consola
-- Métricas de salud en `/public/health`
-- Información de la aplicación en `/public/info`
+## 📚 Documentación Adicional
+
+- **Swagger UI:** `http://localhost:8080/swagger-ui.html`
+- **H2 Console:** `http://localhost:8080/h2-console`
+- **API Docs:** `http://localhost:8080/v3/api-docs`
 
 ## 🔄 Actualizaciones
 
-Para actualizar la colección:
-1. Importa el nuevo archivo JSON
-2. Se reemplazará la colección existente
-3. Verifica que las variables de entorno se mantengan
+### Última Actualización: Octubre 2024
+Se agregaron nuevos endpoints para completar la cobertura de la API:
+
+#### Nuevos Endpoints Agregados:
+- **🏠 Información Pública**: Endpoint raíz (`/`)
+- **👥 Gestión de Usuarios**: ID, activos, permisos, activar/desactivar usuarios
+- **🏥 Gestión de Pacientes**: Búsqueda por username e ID, eliminación por ID
+- **📅 Gestión de Citas**: Múltiples endpoints adicionales ya incluidos
+- **🏥 Gestión de Visitas**: Rango de fechas, actualización, estadísticas, pendientes
+- **📋 Gestión de Órdenes Médicas**: Por doctor, rango de fechas, actualización, eliminación, estadísticas
+- **📋 Gestión de Registros Médicos**: Contador de registros
+- **💊 Gestión de Inventario**: Ayudas diagnósticas, estadísticas, eliminación, verificación de existencia
+
+### Procedimiento de Actualización:
+1. Re-importa el archivo JSON
+2. Verifica que las variables de entorno se mantengan
+3. Ejecuta "Health Check" para validar compatibilidad
+4. Prueba algunos de los nuevos endpoints agregados
 
 ---
 
-**Desarrollado para**: Sistema de Gestión Clínica
-**Versión**: 1.0.0
-**Última actualización**: Octubre 2024
+**¡Listo para probar!** 🎉
+La colección está configurada para proporcionarte una experiencia completa de testing de la API del Sistema de Gestión Clínica.
