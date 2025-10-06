@@ -274,6 +274,9 @@ public class OrderApplicationService {
 
         try {
             OrderNumber orderNumberObj = OrderNumber.of(orderNumber.trim());
+            PatientCedula patientCedula = PatientCedula.of(updateDTO.getPatientCedula());
+            DoctorCedula doctorCedula = DoctorCedula.of(updateDTO.getDoctorCedula());
+            OrderCreationDate creationDate = OrderCreationDate.now();
 
             // Find existing order first
             Optional<OrderDTO> existingOrderOpt = findOrderByNumber(orderNumber);
@@ -281,15 +284,37 @@ public class OrderApplicationService {
                 throw new IllegalArgumentException("Order not found: " + orderNumber);
             }
 
-            // For now, we'll implement a basic update mechanism
-            // In a complete implementation, you would need update methods in:
-            // - OrderDomainService (updateMedicationOrder, updateProcedureOrder, updateDiagnosticAidOrder)
-            // - OrderRepository (updateMedicationOrder, updateProcedureOrder, updateDiagnosticAidOrder)
+            // Determine order type and update appropriate domain entity
+            if (isMedicationOrder(updateDTO)) {
+                List<MedicationItem> medications = convertToMedicationItems(updateDTO.getItems());
+                MedicationOrder medicationOrder = MedicationOrder.of(
+                    orderNumberObj, patientCedula, doctorCedula, creationDate,
+                    OrderStatus.CREADA, medications);
+                MedicationOrder updatedOrder = orderDomainService.updateMedicationOrder(medicationOrder);
 
-            // Since these methods don't exist yet, we'll throw an exception indicating
-            // that update functionality needs to be implemented in the domain layer
-            throw new UnsupportedOperationException(
-                "Order update not yet implemented - requires update methods in OrderDomainService and repositories");
+                return mapMedicationOrderToDTO(updatedOrder);
+
+            } else if (isProcedureOrder(updateDTO)) {
+                List<ProcedureItem> procedures = convertToProcedureItems(updateDTO.getItems());
+                ProcedureOrder procedureOrder = ProcedureOrder.of(
+                    orderNumberObj, patientCedula, doctorCedula, creationDate,
+                    OrderStatus.CREADA, procedures);
+                ProcedureOrder updatedOrder = orderDomainService.updateProcedureOrder(procedureOrder);
+
+                return mapProcedureOrderToDTO(updatedOrder);
+
+            } else if (isDiagnosticAidOrder(updateDTO)) {
+                List<DiagnosticAidItem> diagnosticAids = convertToDiagnosticAidItems(updateDTO.getItems());
+                DiagnosticAidOrder diagnosticAidOrder = DiagnosticAidOrder.of(
+                    orderNumberObj, patientCedula, doctorCedula, creationDate,
+                    OrderStatus.CREADA, diagnosticAids);
+                DiagnosticAidOrder updatedOrder = orderDomainService.updateDiagnosticAidOrder(diagnosticAidOrder);
+
+                return mapDiagnosticAidOrderToDTO(updatedOrder);
+
+            } else {
+                throw new IllegalArgumentException("Invalid order type or mixed order types not allowed");
+            }
 
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Error updating order: " + e.getMessage(), e);
@@ -308,17 +333,39 @@ public class OrderApplicationService {
             OrderNumber orderNumberObj = OrderNumber.of(orderNumber.trim());
 
             // Try to delete from all order types
-            // For now, we'll implement a basic deletion mechanism
-            // In a complete implementation, you would need delete methods in:
-            // - OrderDomainService (deleteMedicationOrder, deleteProcedureOrder, deleteDiagnosticAidOrder)
-            // - OrderRepository (deleteMedicationOrder, deleteProcedureOrder, deleteDiagnosticAidOrder)
-
             boolean deleted = false;
 
-            // Since these methods don't exist yet, we'll throw an exception indicating
-            // that delete functionality needs to be implemented in the domain layer
-            throw new UnsupportedOperationException(
-                "Order deletion not yet implemented - requires delete methods in OrderDomainService and repositories");
+            // Try to delete as medication order first
+            try {
+                orderDomainService.deleteMedicationOrder(orderNumberObj);
+                deleted = true;
+            } catch (IllegalArgumentException e) {
+                // Order not found as medication order, try other types
+            }
+
+            // Try to delete as procedure order
+            if (!deleted) {
+                try {
+                    orderDomainService.deleteProcedureOrder(orderNumberObj);
+                    deleted = true;
+                } catch (IllegalArgumentException e) {
+                    // Order not found as procedure order, try other types
+                }
+            }
+
+            // Try to delete as diagnostic aid order
+            if (!deleted) {
+                try {
+                    orderDomainService.deleteDiagnosticAidOrder(orderNumberObj);
+                    deleted = true;
+                } catch (IllegalArgumentException e) {
+                    // Order not found as diagnostic aid order
+                }
+            }
+
+            if (!deleted) {
+                throw new IllegalArgumentException("Order not found: " + orderNumber);
+            }
 
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Error deleting order: " + e.getMessage(), e);

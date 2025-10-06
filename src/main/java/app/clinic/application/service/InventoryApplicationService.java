@@ -85,10 +85,19 @@ public class InventoryApplicationService {
         InventoryItemName updatedName = existingItem.getName();
         InventoryItemType updatedType = existingItem.getType();
         Cost updatedCost = existingItem.getCost();
+        String updatedDescription = existingItem.getDescription();
+        Integer updatedCurrentStock = existingItem.getCurrentStock();
+        Integer updatedMinimumStock = existingItem.getMinimumStock();
+        Integer updatedMaximumStock = existingItem.getMaximumStock();
 
         // Update name if provided
         if (updateInventoryItemDTO.getName() != null && !updateInventoryItemDTO.getName().trim().isEmpty()) {
             updatedName = InventoryItemName.of(updateInventoryItemDTO.getName());
+        }
+
+        // Update type if provided
+        if (updateInventoryItemDTO.getType() != null && !updateInventoryItemDTO.getType().trim().isEmpty()) {
+            updatedType = convertStringToInventoryItemType(updateInventoryItemDTO.getType());
         }
 
         // Update cost if provided
@@ -101,13 +110,35 @@ public class InventoryApplicationService {
             }
         }
 
+        // Update description if provided
+        if (updateInventoryItemDTO.getDescription() != null) {
+            updatedDescription = updateInventoryItemDTO.getDescription();
+        }
+
+        // Update stock levels if provided
+        if (updateInventoryItemDTO.getCurrentStock() != null) {
+            updatedCurrentStock = updateInventoryItemDTO.getCurrentStock();
+        }
+
+        if (updateInventoryItemDTO.getMinimumStock() != null) {
+            updatedMinimumStock = updateInventoryItemDTO.getMinimumStock();
+        }
+
+        if (updateInventoryItemDTO.getMaximumStock() != null) {
+            updatedMaximumStock = updateInventoryItemDTO.getMaximumStock();
+        }
+
         // Create updated inventory item
         InventoryItem updatedItem = InventoryItem.of(
             existingItem.getId(),
             updatedName,
             updatedType,
             updatedCost,
-            existingItem.isActive()
+            existingItem.isActive(),
+            updatedDescription,
+            updatedCurrentStock,
+            updatedMinimumStock,
+            updatedMaximumStock
         );
 
         // Save using domain service
@@ -327,6 +358,11 @@ public class InventoryApplicationService {
         dto.setName(inventoryItem.getName().getValue());
         dto.setType(inventoryItem.getType().getDisplayName());
         dto.setCost(inventoryItem.getCost().getValue().getAmount().toString());
+        dto.setDescription(inventoryItem.getDescription());
+        dto.setCurrentStock(inventoryItem.getCurrentStock());
+        dto.setMinimumStock(inventoryItem.getMinimumStock());
+        dto.setMaximumStock(inventoryItem.getMaximumStock());
+        dto.setLowStock(inventoryItem.isLowStock());
         dto.setRequiresSpecialistAssistance(false); // Default value as domain entity doesn't have this field
         return dto;
     }

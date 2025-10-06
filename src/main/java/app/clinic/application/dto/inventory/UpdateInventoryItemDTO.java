@@ -30,13 +30,22 @@ public class UpdateInventoryItemDTO {
     @Size(max = 20, message = "Specialist type ID must not exceed 20 characters")
     private String specialistTypeId;
 
+    private String type;
+
+    private Integer currentStock;
+
+    private Integer minimumStock;
+
+    private Integer maximumStock;
+
     // Default constructor
     public UpdateInventoryItemDTO() {}
 
     // Constructor with parameters
     public UpdateInventoryItemDTO(String name, String description, String dosage,
                                  String frequency, String duration, String cost,
-                                 Boolean requiresSpecialistAssistance, String specialistTypeId) {
+                                 Boolean requiresSpecialistAssistance, String specialistTypeId,
+                                 String type, Integer currentStock, Integer minimumStock, Integer maximumStock) {
         this.name = name;
         this.description = description;
         this.dosage = dosage;
@@ -45,6 +54,10 @@ public class UpdateInventoryItemDTO {
         this.cost = cost;
         this.requiresSpecialistAssistance = requiresSpecialistAssistance;
         this.specialistTypeId = specialistTypeId;
+        this.type = type;
+        this.currentStock = currentStock;
+        this.minimumStock = minimumStock;
+        this.maximumStock = maximumStock;
     }
 
     // Getters and Setters
@@ -112,9 +125,41 @@ public class UpdateInventoryItemDTO {
         this.specialistTypeId = specialistTypeId;
     }
 
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public Integer getCurrentStock() {
+        return currentStock;
+    }
+
+    public void setCurrentStock(Integer currentStock) {
+        this.currentStock = currentStock;
+    }
+
+    public Integer getMinimumStock() {
+        return minimumStock;
+    }
+
+    public void setMinimumStock(Integer minimumStock) {
+        this.minimumStock = minimumStock;
+    }
+
+    public Integer getMaximumStock() {
+        return maximumStock;
+    }
+
+    public void setMaximumStock(Integer maximumStock) {
+        this.maximumStock = maximumStock;
+    }
+
     @Override
     public String toString() {
-        return String.format("UpdateInventoryItemDTO{name='%s', cost='%s'}",
-                           name, cost);
+        return String.format("UpdateInventoryItemDTO{name='%s', cost='%s', type='%s', currentStock=%d}",
+                           name, cost, type, currentStock);
     }
 }

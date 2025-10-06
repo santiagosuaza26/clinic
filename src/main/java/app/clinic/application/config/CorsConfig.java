@@ -28,8 +28,10 @@ public class CorsConfig {
             "http://localhost:3000",    // React development server
             "http://localhost:4200",    // Angular development server
             "http://localhost:8000",    // Frontend development server (Python HTTP server)
-            "http://localhost:8080",    // Alternative development server
-            "https://your-frontend-domain.com" // Production frontend
+            "http://localhost:8080",    // Frontend files served from same server
+            "http://127.0.0.1:8080",   // Alternative localhost
+            "https://your-frontend-domain.com", // Production frontend
+            "null"                      // Allow file:// protocol (when opening HTML directly)
         ));
 
         // Allowed HTTP methods

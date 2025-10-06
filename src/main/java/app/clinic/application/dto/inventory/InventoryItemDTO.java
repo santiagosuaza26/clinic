@@ -15,6 +15,10 @@ public class InventoryItemDTO {
     private String duration;
     private boolean requiresSpecialistAssistance;
     private String specialistTypeId;
+    private Integer currentStock;
+    private Integer minimumStock;
+    private Integer maximumStock;
+    private boolean lowStock;
 
     // Default constructor
     public InventoryItemDTO() {}
@@ -22,7 +26,8 @@ public class InventoryItemDTO {
     // Constructor with parameters
     public InventoryItemDTO(String id, String name, String type, String cost, String description,
                            String dosage, String frequency, String duration,
-                           boolean requiresSpecialistAssistance, String specialistTypeId) {
+                           boolean requiresSpecialistAssistance, String specialistTypeId,
+                           Integer currentStock, Integer minimumStock, Integer maximumStock, boolean lowStock) {
         this.id = id;
         this.name = name;
         this.type = type;
@@ -33,6 +38,10 @@ public class InventoryItemDTO {
         this.duration = duration;
         this.requiresSpecialistAssistance = requiresSpecialistAssistance;
         this.specialistTypeId = specialistTypeId;
+        this.currentStock = currentStock;
+        this.minimumStock = minimumStock;
+        this.maximumStock = maximumStock;
+        this.lowStock = lowStock;
     }
 
     // Getters and Setters
@@ -116,9 +125,41 @@ public class InventoryItemDTO {
         this.specialistTypeId = specialistTypeId;
     }
 
+    public Integer getCurrentStock() {
+        return currentStock;
+    }
+
+    public void setCurrentStock(Integer currentStock) {
+        this.currentStock = currentStock;
+    }
+
+    public Integer getMinimumStock() {
+        return minimumStock;
+    }
+
+    public void setMinimumStock(Integer minimumStock) {
+        this.minimumStock = minimumStock;
+    }
+
+    public Integer getMaximumStock() {
+        return maximumStock;
+    }
+
+    public void setMaximumStock(Integer maximumStock) {
+        this.maximumStock = maximumStock;
+    }
+
+    public boolean isLowStock() {
+        return lowStock;
+    }
+
+    public void setLowStock(boolean lowStock) {
+        this.lowStock = lowStock;
+    }
+
     @Override
     public String toString() {
-        return String.format("InventoryItemDTO{id='%s', name='%s', type='%s', cost='%s'}",
-                           id, name, type, cost);
+        return String.format("InventoryItemDTO{id='%s', name='%s', type='%s', cost='%s', currentStock=%d}",
+                           id, name, type, cost, currentStock);
     }
 }
