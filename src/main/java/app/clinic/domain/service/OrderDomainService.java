@@ -1,13 +1,16 @@
 
 package app.clinic.domain.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
 import app.clinic.domain.model.DiagnosticAidOrder;
+import app.clinic.domain.model.DoctorCedula;
 import app.clinic.domain.model.MedicationOrder;
+import app.clinic.domain.model.OrderCreationDate;
 import app.clinic.domain.model.OrderNumber;
 import app.clinic.domain.model.PatientCedula;
 import app.clinic.domain.model.ProcedureOrder;
@@ -135,5 +138,110 @@ public class OrderDomainService {
             throw new IllegalArgumentException("Diagnostic aid order must contain at least one diagnostic aid");
         }
         // Add additional diagnostic aid order validation rules
+    }
+
+    /**
+     * Updates a medication order with validation.
+     */
+    public MedicationOrder updateMedicationOrder(MedicationOrder medicationOrder) {
+        validateOrderForUpdate(medicationOrder);
+        return orderRepository.updateMedicationOrder(medicationOrder);
+    }
+
+    /**
+     * Updates a procedure order with validation.
+     */
+    public ProcedureOrder updateProcedureOrder(ProcedureOrder procedureOrder) {
+        validateOrderForUpdate(procedureOrder);
+        return orderRepository.updateProcedureOrder(procedureOrder);
+    }
+
+    /**
+     * Updates a diagnostic aid order with validation.
+     */
+    public DiagnosticAidOrder updateDiagnosticAidOrder(DiagnosticAidOrder diagnosticAidOrder) {
+        validateOrderForUpdate(diagnosticAidOrder);
+        return orderRepository.updateDiagnosticAidOrder(diagnosticAidOrder);
+    }
+
+    /**
+     * Deletes a medication order by order number.
+     */
+    public void deleteMedicationOrder(OrderNumber orderNumber) {
+        if (orderRepository.findMedicationOrderByNumber(orderNumber).isEmpty()) {
+            throw new IllegalArgumentException("Medication order not found: " + orderNumber.getValue());
+        }
+        orderRepository.deleteMedicationOrderByNumber(orderNumber);
+    }
+
+    /**
+     * Deletes a procedure order by order number.
+     */
+    public void deleteProcedureOrder(OrderNumber orderNumber) {
+        if (orderRepository.findProcedureOrderByNumber(orderNumber).isEmpty()) {
+            throw new IllegalArgumentException("Procedure order not found: " + orderNumber.getValue());
+        }
+        orderRepository.deleteProcedureOrderByNumber(orderNumber);
+    }
+
+    /**
+     * Deletes a diagnostic aid order by order number.
+     */
+    public void deleteDiagnosticAidOrder(OrderNumber orderNumber) {
+        if (orderRepository.findDiagnosticAidOrderByNumber(orderNumber).isEmpty()) {
+            throw new IllegalArgumentException("Diagnostic aid order not found: " + orderNumber.getValue());
+        }
+        orderRepository.deleteDiagnosticAidOrderByNumber(orderNumber);
+    }
+
+    /**
+     * Finds all orders for a specific doctor.
+     */
+    public List<Object> findOrdersByDoctor(DoctorCedula doctorCedula) {
+        List<Object> orders = new ArrayList<>();
+
+        List<MedicationOrder> medicationOrders = orderRepository.findMedicationOrdersByDoctor(doctorCedula);
+        orders.addAll(medicationOrders);
+
+        List<ProcedureOrder> procedureOrders = orderRepository.findProcedureOrdersByDoctor(doctorCedula);
+        orders.addAll(procedureOrders);
+
+        List<DiagnosticAidOrder> diagnosticAidOrders = orderRepository.findDiagnosticAidOrdersByDoctor(doctorCedula);
+        orders.addAll(diagnosticAidOrders);
+
+        return orders;
+    }
+
+    /**
+     * Finds all orders within a date range.
+     */
+    public List<Object> findOrdersByDateRange(OrderCreationDate startDate, OrderCreationDate endDate) {
+        List<Object> orders = new ArrayList<>();
+
+        List<MedicationOrder> medicationOrders = orderRepository.findMedicationOrdersByDateRange(startDate, endDate);
+        orders.addAll(medicationOrders);
+
+        List<ProcedureOrder> procedureOrders = orderRepository.findProcedureOrdersByDateRange(startDate, endDate);
+        orders.addAll(procedureOrders);
+
+        List<DiagnosticAidOrder> diagnosticAidOrders = orderRepository.findDiagnosticAidOrdersByDateRange(startDate, endDate);
+        orders.addAll(diagnosticAidOrders);
+
+        return orders;
+    }
+
+    /**
+     * Validates order data for update.
+     */
+    private void validateOrderForUpdate(Object order) {
+        if (order instanceof MedicationOrder medicationOrder) {
+            validateMedicationOrder(medicationOrder);
+        } else if (order instanceof ProcedureOrder procedureOrder) {
+            validateProcedureOrder(procedureOrder);
+        } else if (order instanceof DiagnosticAidOrder diagnosticAidOrder) {
+            validateDiagnosticAidOrder(diagnosticAidOrder);
+        } else {
+            throw new IllegalArgumentException("Unknown order type");
+        }
     }
 }

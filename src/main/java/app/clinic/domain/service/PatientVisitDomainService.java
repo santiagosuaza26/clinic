@@ -1,5 +1,6 @@
 package app.clinic.domain.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -85,6 +86,24 @@ public class PatientVisitDomainService {
      */
     public List<PatientVisit> findAllCompletedPatientVisits() {
         return patientVisitRepository.findAllCompleted();
+    }
+
+    /**
+     * Finds patient visits within a date range.
+     */
+    public List<PatientVisit> findVisitsByDateRange(LocalDateTime startDateTime, LocalDateTime endDateTime) {
+        // Validate input parameters
+        if (startDateTime == null) {
+            throw new IllegalArgumentException("Start date cannot be null");
+        }
+        if (endDateTime == null) {
+            throw new IllegalArgumentException("End date cannot be null");
+        }
+        if (startDateTime.isAfter(endDateTime)) {
+            throw new IllegalArgumentException("Start date cannot be after end date");
+        }
+
+        return patientVisitRepository.findByVisitDateTimeBetween(startDateTime, endDateTime);
     }
 
     /**

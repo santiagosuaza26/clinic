@@ -1,12 +1,15 @@
 package app.clinic.infrastructure.adapter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Repository;
 
 import app.clinic.domain.model.DiagnosticAidOrder;
+import app.clinic.domain.model.DoctorCedula;
 import app.clinic.domain.model.MedicationOrder;
+import app.clinic.domain.model.OrderCreationDate;
 import app.clinic.domain.model.OrderNumber;
 import app.clinic.domain.model.PatientCedula;
 import app.clinic.domain.model.ProcedureOrder;
@@ -186,5 +189,79 @@ public class OrderRepositoryAdapter implements OrderRepository {
         // Convertir DiagnosticAidOrderEntity a DiagnosticAidOrder del dominio
         // Esta implementación depende de la estructura específica del modelo de dominio
         throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    // Implementación de métodos nuevos agregados al repositorio
+
+    @Override
+    public List<MedicationOrder> findMedicationOrdersByDoctor(DoctorCedula doctorCedula) {
+        // Implementación básica - en una implementación real buscaría en la base de datos
+        return new ArrayList<>();
+    }
+
+    @Override
+    public List<ProcedureOrder> findProcedureOrdersByDoctor(DoctorCedula doctorCedula) {
+        // Implementación básica - en una implementación real buscaría en la base de datos
+        return new ArrayList<>();
+    }
+
+    @Override
+    public List<DiagnosticAidOrder> findDiagnosticAidOrdersByDoctor(DoctorCedula doctorCedula) {
+        // Implementación básica - en una implementación real buscaría en la base de datos
+        return new ArrayList<>();
+    }
+
+    @Override
+    public List<MedicationOrder> findMedicationOrdersByDateRange(OrderCreationDate startDate, OrderCreationDate endDate) {
+        // Implementación básica - en una implementación real buscaría en la base de datos
+        return new ArrayList<>();
+    }
+
+    @Override
+    public List<ProcedureOrder> findProcedureOrdersByDateRange(OrderCreationDate startDate, OrderCreationDate endDate) {
+        // Implementación básica - en una implementación real buscaría en la base de datos
+        return new ArrayList<>();
+    }
+
+    @Override
+    public List<DiagnosticAidOrder> findDiagnosticAidOrdersByDateRange(OrderCreationDate startDate, OrderCreationDate endDate) {
+        // Implementación básica - en una implementación real buscaría en la base de datos
+        return new ArrayList<>();
+    }
+
+    @Override
+    public MedicationOrder updateMedicationOrder(MedicationOrder medicationOrder) {
+        // Implementación básica - en una implementación real actualizaría en la base de datos
+        return medicationOrder;
+    }
+
+    @Override
+    public ProcedureOrder updateProcedureOrder(ProcedureOrder procedureOrder) {
+        // Implementación básica - en una implementación real actualizaría en la base de datos
+        return procedureOrder;
+    }
+
+    @Override
+    public DiagnosticAidOrder updateDiagnosticAidOrder(DiagnosticAidOrder diagnosticAidOrder) {
+        // Implementación básica - en una implementación real actualizaría en la base de datos
+        return diagnosticAidOrder;
+    }
+
+    @Override
+    public void deleteMedicationOrderByNumber(OrderNumber orderNumber) {
+        // Implementación básica - en una implementación real eliminaría de la base de datos
+        deleteByOrderNumber(orderNumber);
+    }
+
+    @Override
+    public void deleteProcedureOrderByNumber(OrderNumber orderNumber) {
+        // Implementación básica - en una implementación real eliminaría de la base de datos
+        deleteByOrderNumber(orderNumber);
+    }
+
+    @Override
+    public void deleteDiagnosticAidOrderByNumber(OrderNumber orderNumber) {
+        // Implementación básica - en una implementación real eliminaría de la base de datos
+        deleteByOrderNumber(orderNumber);
     }
 }

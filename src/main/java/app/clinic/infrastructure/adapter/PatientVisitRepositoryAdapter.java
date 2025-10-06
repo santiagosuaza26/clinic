@@ -1,5 +1,6 @@
 package app.clinic.infrastructure.adapter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -90,6 +91,14 @@ public class PatientVisitRepositoryAdapter implements PatientVisitRepository {
                 .stream()
                 .mapToLong(entity -> entity.isCompleted() ? 1 : 0)
                 .sum();
+    }
+
+    @Override
+    public List<PatientVisit> findByVisitDateTimeBetween(LocalDateTime startDateTime, LocalDateTime endDateTime) {
+        return patientVisitJpaRepository.findByVisitDateTimeBetween(startDateTime, endDateTime)
+                .stream()
+                .map(this::toDomain)
+                .collect(Collectors.toList());
     }
 
     // Métodos de conversión entre dominio y entidad

@@ -4,7 +4,9 @@ import java.util.List;
 import java.util.Optional;
 
 import app.clinic.domain.model.DiagnosticAidOrder;
+import app.clinic.domain.model.DoctorCedula;
 import app.clinic.domain.model.MedicationOrder;
+import app.clinic.domain.model.OrderCreationDate;
 import app.clinic.domain.model.OrderNumber;
 import app.clinic.domain.model.PatientCedula;
 import app.clinic.domain.model.ProcedureOrder;
@@ -84,4 +86,64 @@ public interface OrderRepository {
      * Counts orders by patient.
      */
     long countByPatient(PatientCedula patientCedula);
+
+    /**
+     * Finds all medication orders for a doctor.
+     */
+    List<MedicationOrder> findMedicationOrdersByDoctor(DoctorCedula doctorCedula);
+
+    /**
+     * Finds all procedure orders for a doctor.
+     */
+    List<ProcedureOrder> findProcedureOrdersByDoctor(DoctorCedula doctorCedula);
+
+    /**
+     * Finds all diagnostic aid orders for a doctor.
+     */
+    List<DiagnosticAidOrder> findDiagnosticAidOrdersByDoctor(DoctorCedula doctorCedula);
+
+    /**
+     * Finds all medication orders within a date range.
+     */
+    List<MedicationOrder> findMedicationOrdersByDateRange(OrderCreationDate startDate, OrderCreationDate endDate);
+
+    /**
+     * Finds all procedure orders within a date range.
+     */
+    List<ProcedureOrder> findProcedureOrdersByDateRange(OrderCreationDate startDate, OrderCreationDate endDate);
+
+    /**
+     * Finds all diagnostic aid orders within a date range.
+     */
+    List<DiagnosticAidOrder> findDiagnosticAidOrdersByDateRange(OrderCreationDate startDate, OrderCreationDate endDate);
+
+    /**
+     * Updates a medication order.
+     */
+    MedicationOrder updateMedicationOrder(MedicationOrder medicationOrder);
+
+    /**
+     * Updates a procedure order.
+     */
+    ProcedureOrder updateProcedureOrder(ProcedureOrder procedureOrder);
+
+    /**
+     * Updates a diagnostic aid order.
+     */
+    DiagnosticAidOrder updateDiagnosticAidOrder(DiagnosticAidOrder diagnosticAidOrder);
+
+    /**
+     * Deletes a medication order by order number.
+     */
+    void deleteMedicationOrderByNumber(OrderNumber orderNumber);
+
+    /**
+     * Deletes a procedure order by order number.
+     */
+    void deleteProcedureOrderByNumber(OrderNumber orderNumber);
+
+    /**
+     * Deletes a diagnostic aid order by order number.
+     */
+    void deleteDiagnosticAidOrderByNumber(OrderNumber orderNumber);
 }

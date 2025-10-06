@@ -62,4 +62,9 @@ public interface PatientVisitRepository {
      * Counts completed patient visits.
      */
     long countCompleted();
+
+    /**
+     * Finds patient visits within a date range.
+     */
+    List<PatientVisit> findByVisitDateTimeBetween(java.time.LocalDateTime startDateTime, java.time.LocalDateTime endDateTime);
 }

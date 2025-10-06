@@ -66,8 +66,7 @@ public class PatientApplicationService {
      */
     public Optional<PatientDTO> findPatientByCedula(String cedula) {
         Optional<Patient> patient = patientDomainService.findPatientByCedula(PatientCedula.of(cedula));
-        // TODO: Convert Patient to PatientDTO using mapper
-        return patient.map(p -> convertToDTO(p));
+        return patient.map(PatientMapper::toDTO);
     }
 
     /**
@@ -75,7 +74,7 @@ public class PatientApplicationService {
      */
     public Optional<PatientDTO> findPatientByUsername(String username) {
         Optional<Patient> patient = patientDomainService.findPatientByUsername(PatientUsername.of(username));
-        return patient.map(p -> convertToDTO(p));
+        return patient.map(PatientMapper::toDTO);
     }
 
     /**
@@ -83,7 +82,7 @@ public class PatientApplicationService {
      */
     public Optional<PatientDTO> findPatientById(String patientId) {
         Optional<Patient> patient = patientDomainService.findPatientById(PatientId.of(patientId));
-        return patient.map(p -> convertToDTO(p));
+        return patient.map(PatientMapper::toDTO);
     }
 
     /**
@@ -92,7 +91,7 @@ public class PatientApplicationService {
     public List<PatientDTO> findAllPatients() {
         List<Patient> patients = patientDomainService.findAllPatients();
         return patients.stream()
-                     .map(p -> convertToDTO(p))
+                     .map(PatientMapper::toDTO)
                      .collect(Collectors.toList());
     }
 
@@ -127,26 +126,5 @@ public class PatientApplicationService {
         return patient.map(p -> p.getAge().getValue()).orElse(0);
     }
 
-    /**
-     * Helper method to convert Patient domain entity to PatientDTO.
-     * TODO: Replace with proper mapper implementation.
-     */
-    private PatientDTO convertToDTO(Patient patient) {
-        PatientDTO dto = new PatientDTO();
-        dto.setCedula(patient.getCedula().getValue());
-        dto.setUsername(patient.getUsername().getValue());
-        dto.setFullName(patient.getFullName().getFullName());
-        dto.setBirthDate(patient.getBirthDate().getValue().toString());
-        dto.setGender(patient.getGender().getDisplayName());
-        dto.setAddress(patient.getAddress().getValue());
-        dto.setPhoneNumber(patient.getPhoneNumber().getValue());
-        dto.setEmail(patient.getEmail().getValue());
-        dto.setAge(patient.getAge().getValue());
 
-        // TODO: Convert emergency contacts and insurance policy
-        // dto.setEmergencyContact(convertEmergencyContact(patient.getEmergencyContacts()));
-        // dto.setInsurancePolicy(convertInsurancePolicy(patient.getInsurancePolicy()));
-
-        return dto;
-    }
 }

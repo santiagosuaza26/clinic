@@ -80,6 +80,26 @@ public class MedicalRecordDomainService {
     }
 
     /**
+     * Removes a specific record entry from a patient's medical record.
+     */
+    public PatientRecordMap removeRecordEntry(PatientCedula patientCedula, PatientRecordDate date) {
+        PatientRecordMap existingRecords = medicalRecordRepository.findAll();
+        PatientRecord existingRecord = existingRecords.getRecord(patientCedula);
+
+        if (existingRecord == null) {
+            throw new IllegalArgumentException("Patient record does not exist");
+        }
+
+        if (!existingRecord.hasRecord(date)) {
+            throw new IllegalArgumentException("Record entry does not exist for the specified date");
+        }
+
+        PatientRecord updatedRecord = existingRecord.removeRecord(date);
+        PatientRecordMap updatedRecords = existingRecords.addRecord(patientCedula, updatedRecord);
+        return medicalRecordRepository.save(updatedRecords);
+    }
+
+    /**
      * Validates medical record data for creation.
      */
     private void validateMedicalRecordForCreation(PatientCedula patientCedula, PatientRecord record) {

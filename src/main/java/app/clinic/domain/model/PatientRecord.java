@@ -37,6 +37,12 @@ public class PatientRecord {
         return new PatientRecord(newRecords);
     }
 
+    public PatientRecord removeRecord(PatientRecordDate date) {
+        Map<PatientRecordDate, PatientRecordEntry> newRecords = new HashMap<>(records);
+        newRecords.remove(date);
+        return new PatientRecord(newRecords);
+    }
+
     public boolean hasRecord(PatientRecordDate date) {
         return records.containsKey(date);
     }
